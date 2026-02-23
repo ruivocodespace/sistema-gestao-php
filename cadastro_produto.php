@@ -92,7 +92,7 @@ $produto = mysqli_query($conexao, $sql);
 
         <!-- Formulário de Cadastro -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-8 max-w-xl">
-            <form method="POST" action="cadastro_produto.php">
+            <form method="POST" action="index.php">
 
                 <!-- Campo Nome -->
                 <div class="mb-4">
