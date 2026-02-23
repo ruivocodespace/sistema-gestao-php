@@ -25,6 +25,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $preco = $_POST["preco"];
     $estoque = $_POST["estoque"];
     $categoria = $_POST["categoria"];
+    $imagem = $_FILES["imagem"];
+    
 
     // Verificar se o produto já existe
     $sql = "SELECT * FROM produto WHERE nome = '$nome'";
@@ -34,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $erro = "Este produto já foi cadastrado.";
     } else {
         // Inserir o novo produto
-        $sql = "INSERT INTO produto (nome, descricao, preco, estoque, categoria) VALUES ('$nome', '$descricao', '$preco', '$estoque', '$categoria')";
+        $sql = "INSERT INTO produto (nome, descricao, preco, estoque, categoria, imagem) VALUES ('$nome', '$descricao', '$preco', '$estoque', '$categoria', '$imagem')";
 
         if (mysqli_query($conexao, $sql)) {
             $sucesso = "Produto cadastrado com sucesso!";
@@ -44,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 }
 // Buscar todos os produtos para listar
-$sql = "SELECT id, nome, descricao preco, estoque, categoria, criado_em FROM produto ORDER BY id DESC";
+$sql = "SELECT id, nome, imagem, criado_em FROM produto ORDER BY id DESC";
 $produto = mysqli_query($conexao, $sql);
 ?>
 
@@ -92,7 +94,7 @@ $produto = mysqli_query($conexao, $sql);
 
         <!-- Formulário de Cadastro -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-8 max-w-xl">
-            <form method="POST" action="index.php">
+            <form method="POST" action="cadastro_produto.php" enctype="multipart/form-data">
 
                 <!-- Campo Nome -->
                 <div class="mb-4">
@@ -125,7 +127,7 @@ $produto = mysqli_query($conexao, $sql);
                 </div>
 
                 <!-- Campo Preço -->
-                <div class="mb-6">
+                <div class="mb-4">
                     <label for="preco" class="block text-gray-700 font-medium mb-2">
                         Preço
                     </label>
@@ -139,7 +141,7 @@ $produto = mysqli_query($conexao, $sql);
                     >
                 </div>
                 <!-- Campo Estoque -->
-                <div class="mb-6">
+                <div class="mb-4">
                     <label for="estoque" class="block text-gray-700 font-medium mb-2">
                         Estoque
                     </label>
@@ -154,7 +156,7 @@ $produto = mysqli_query($conexao, $sql);
                 </div>
 
                 <!-- Campo categoria -->
-                <div class="mb-6">
+                <div class="mb-4">
                     <label for="categoria" class="block text-gray-700 font-medium mb-2">
                         Categoria
                     </label>
@@ -164,6 +166,19 @@ $produto = mysqli_query($conexao, $sql);
                         name="categoria"
                         required
                         placeholder="Digite a categoaria"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                </div>
+                <!-- Campo imagem -->
+                <div class="mb-4">
+                    <label for="imagem" class="block text-gray-700 font-medium mb-2">
+                        Imagem
+                    </label>
+                    <input
+                        type="file"
+                        id="imagem"
+                        name="imagem"
+                        required
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                 </div>
@@ -187,7 +202,7 @@ $produto = mysqli_query($conexao, $sql);
                     <tr class="bg-gray-800 text-white">
                         <th class="px-4 py-3 text-left rounded-tl-lg">ID</th>
                         <th class="px-4 py-3 text-left">Nome</th>
-                        <th class="px-4 py-3 text-left">Categoria</th>
+                        <th class="px-4 py-3 text-left">Imagem</th>
                         <th class="px-4 py-3 text-left rounded-tr-lg">Criado em</th>
                     </tr>
                 </thead>
@@ -196,7 +211,7 @@ $produto = mysqli_query($conexao, $sql);
                         <tr class="border-b border-gray-200 hover:bg-gray-50">
                             <td class="px-4 py-3"><?php echo $u["id"]; ?></td>
                             <td class="px-4 py-3"><?php echo $u["nome"]; ?></td>
-                            <td class="px-4 py-3"><?php echo $u["categoria"]; ?></td>
+                            <td class="px-4 py-3"><?php echo $u["imagem"]; ?></td>
                             <td class="px-4 py-3 text-gray-500"><?php echo $u["criado_em"]; ?></td>
                         </tr>
                     <?php endwhile; ?>
