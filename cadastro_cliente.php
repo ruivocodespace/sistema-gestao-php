@@ -153,7 +153,7 @@ $cliente = mysqli_query($conexao, $sql);
                 </div>
 
                 <!-- Campo CPF -->
-                <div class="mb-6">
+                <div class="mb-4">
                     <label for="cpf" class="block text-gray-700 font-medium mb-2">
                         CPF
                     </label>
@@ -168,7 +168,7 @@ $cliente = mysqli_query($conexao, $sql);
                 </div>
 
                 <!-- Campo endereço -->
-                <div class="mb-6">
+                <div class="mb-4">
                     <label for="endereco" class="block text-gray-700 font-medium mb-2">
                         Endereço
                     </label>
