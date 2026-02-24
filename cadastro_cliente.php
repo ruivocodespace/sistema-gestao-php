@@ -27,34 +27,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $imagem = $_FILES["imagem"];
     $nomeImagem = "";
 
-    //Tipos de imagem
-    if ($imagem["error"] === 0) {
-
-    // 3. Tipos permitidos
+   //Processamento da imagem
+   if ($imagem["error"] === 0) {
     $tiposPermitidos = ["image/jpeg", "image/png", "image/webp"];
 
-    // 4. Validar tipo
     if (!in_array($imagem["type"], $tiposPermitidos)) {
         $erro = "Tipo não permitido. Use JPG, PNG ou WEBP.";
-
-    // 5. Tudo certo: gerar nome e salvar
     } else {
-        // Extrair a extensao do arquivo original
-        // Ex: "foto.jpg" -> pega so o "jpg"
         $extensao   = pathinfo($imagem["name"], PATHINFO_EXTENSION);
         $nomeImagem = "cliente_" . time() . "." . $extensao;
         move_uploaded_file($imagem["tmp_name"], "uploads/" . $nomeImagem);
+    }
+}
 
-            // Verificar se o email já existe
+if (empty($erro)) {
+    // Verificar se o email já existe
     $sql = "SELECT * FROM cliente WHERE email = '$email'";
     $resultado = mysqli_query($conexao, $sql);
 
     if (mysqli_num_rows($resultado) > 0) {
         $erro = "Este email já está cadastrado.";
     } else {
-        // Criptografar a senha
-        $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
-
         // Inserir o novo cliente
         $sql = "INSERT INTO cliente (nome, email, cpf, endereco, imagem) VALUES ('$nome', '$email', '$cpf','$endereco', '$nomeImagem')";
 
@@ -64,11 +57,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $erro = "Erro ao cadastrar cliente.";
         }
     }
-        
-    }
-}
-
-
+} 
 }
 
 // Buscar todos os clientes para listar

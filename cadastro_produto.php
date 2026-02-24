@@ -29,31 +29,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $nomeImagem = "";
 
     
-    //Tipos de imagem
-    if ($imagem["error"] === 0) {
-
-    // 3. Tipos permitidos
+//Processamento da imagem
+if ($imagem["error"] === 0) {
     $tiposPermitidos = ["image/jpeg", "image/png", "image/webp"];
 
-    // 4. Validar tipo
     if (!in_array($imagem["type"], $tiposPermitidos)) {
         $erro = "Tipo não permitido. Use JPG, PNG ou WEBP.";
-
-    // 5. Tudo certo: gerar nome e salvar
     } else {
-        // Extrair a extensao do arquivo original
-        // Ex: "foto.jpg" -> pega so o "jpg"
         $extensao   = pathinfo($imagem["name"], PATHINFO_EXTENSION);
         $nomeImagem = "produto_" . time() . "." . $extensao;
         move_uploaded_file($imagem["tmp_name"], "uploads/" . $nomeImagem);
+    }
+}
+if (empty($erro)) {
+    // Verificar se o email já existe
+    $sql = "SELECT * FROM produto WHERE nome = '$nome'";
+    $resultado = mysqli_query($conexao, $sql);
 
-        // Verificar se o produto já existe
-        $sql = "SELECT * FROM produto WHERE nome = '$nome'";
-        $resultado = mysqli_query($conexao, $sql);
-
-        if (mysqli_num_rows($resultado) > 0) {
-            $erro = "Este produto já foi cadastrado.";
-        } else {
+    if (mysqli_num_rows($resultado) > 0) {
+        $erro = "Este email já está cadastrado.";
+    } else  {
             // Inserir o novo produto
             $sql = "INSERT INTO produto (nome, descricao, preco, estoque, categoria, imagem) VALUES ('$nome', '$descricao', '$preco', '$estoque', '$categoria', '$nomeImagem')";
 
@@ -63,10 +58,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $erro = "Erro ao cadastrar produto.";
             }
         }
-    }
+}
 }
 
-}
 // Buscar todos os produtos para listar
 $sql = "SELECT id, nome, imagem, criado_em FROM produto ORDER BY id DESC";
 $produto = mysqli_query($conexao, $sql);
