@@ -108,8 +108,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $erro = "Erro ao cadastrar cliente.";
             }
         }
-
-
     }
 }
 

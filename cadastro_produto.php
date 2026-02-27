@@ -17,53 +17,104 @@ require_once "conexao.php";
 $sucesso = "";
 $erro = "";
 
+$editando = NULL;
+
+// Editar produto
+
+if(isset($_GET["editar"])){
+    $id = $_GET["editar"];
+    $sql = "SELECT * FROM produto WHERE id = '$id'";
+    $res = mysqli_query($conexao, $sql);
+    $editando = mysqli_fetch_assoc($res);
+}
+if (isset($_GET["excluir"])) {
+    $id = $_GET["excluir"];
+    $sql = "DELETE FROM produto WHERE id = '$id'";
+    $res = mysqli_query($conexao, $sql);
+}
+
+
 // Verificar se o formulário de cadastro foi enviado
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
+    $id = $_POST["id"];
     $nome  = $_POST["nome"];
     $descricao = $_POST["descricao"];    
     $preco = $_POST["preco"];
     $estoque = $_POST["estoque"];
     $categoria = $_POST["categoria"];
     $imagem = $_FILES["imagem"];
-    $nomeImagem = "";
-
     
-//Processamento da imagem
-if ($imagem["error"] === 0) {
+
+// Files para arquivos
+$imagem = $_FILES["imagem"];
+
+// Processamento da imagem
+   
+    // Formatos permitidos
     $tiposPermitidos = ["image/jpeg", "image/png", "image/webp"];
-
-    if (!in_array($imagem["type"], $tiposPermitidos)) {
+    
+    // Validar formatos
+    if ($imagem["size"] > 0 && !in_array($imagem["type"], $tiposPermitidos)) {
         $erro = "Tipo não permitido. Use JPG, PNG ou WEBP.";
+
+    // Formato correto segue:
     } else {
-        $extensao   = pathinfo($imagem["name"], PATHINFO_EXTENSION);
-        $nomeImagem = "produto_" . time() . "." . $extensao;
-        move_uploaded_file($imagem["tmp_name"], "uploads/" . $nomeImagem);
-    }
-}
-if (empty($erro)) {
-    // Verificar se o email já existe
-    $sql = "SELECT * FROM produto WHERE nome = '$nome'";
-    $resultado = mysqli_query($conexao, $sql);
+        $nomeImagem = '';
+        if($imagem["size"] > 0){
+            $extensao   = pathinfo($imagem["name"], PATHINFO_EXTENSION);
+            $nomeImagem = "produto_" . time() . "." . $extensao;
+            move_uploaded_file($imagem["tmp_name"], "uploads/" . $nomeImagem);
+        }
 
-    if (mysqli_num_rows($resultado) > 0) {
-        $erro = "Este email já está cadastrado.";
-    } else  {
-            // Inserir o novo produto
-            $sql = "INSERT INTO produto (nome, descricao, preco, estoque, categoria, imagem) VALUES ('$nome', '$descricao', '$preco', '$estoque', '$categoria', '$nomeImagem')";
+        // Verificar se o email já existe
+        $sql = "SELECT * FROM produto WHERE nome = '$nome'";
+        $resultado = mysqli_query($conexao, $sql);
 
-            if (mysqli_query($conexao, $sql)) {
+        if (mysqli_num_rows($resultado) > 0 && $editando !== NULL) {
+            $erro = "Este produto já está cadastrado.";
+        } else {
+            if($id){
+                if($imagem["size"] > 0){
+                    $sql = "UPDATE produto SET 
+                    nome = '$nome',
+                    descricao = '$descricao',
+                    preco = '$preco',
+                    estoque = '$estoque',
+                    categoria = '$categoria',
+                    imagem = '$nomeImagem'
+                    WHERE id = $id
+                    ";
+                }else{
+                    $sql = "UPDATE produto SET
+                    nome = '$nome',
+                    descricao = '$descricao',
+                    preco = '$preco',
+                    estoque = '$estoque',
+                    categoria = '$categoria'
+                    WHERE id = $id
+                    ";
+                }
+
+                $sucesso = "Produto atualizado com sucesso!";
+            }else{
+                if($imagem["size"] > 0){
+                    $sql = "INSERT INTO produto (nome, descricao, preco, estoque, categoria, imagem) VALUES ('$nome', '$descricao', '$preco', '$estoque', '$categoria', '$nomeImagem')";
+                }else{
+                    $sql = "INSERT INTO produto (nome, descricao, preco, estoque, categoria) VALUES ('$nome', '$descricao', '$preco', '$estoque', '$categoria')";
+                }
+                    
                 $sucesso = "Produto cadastrado com sucesso!";
-            } else {
+            }
+
+            if(!mysqli_query($conexao, $sql)) {
                 $erro = "Erro ao cadastrar produto.";
             }
         }
-}
+    }
+    
 }
 
-// Buscar todos os produtos para listar
-$sql = "SELECT id, nome, imagem, criado_em FROM produto ORDER BY id DESC";
-$produto = mysqli_query($conexao, $sql);
 ?>
 
 <!DOCTYPE html>
@@ -111,6 +162,7 @@ $produto = mysqli_query($conexao, $sql);
         <!-- Formulário de Cadastro -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-8 max-w-xl">
             <form method="POST" action="cadastro_produto.php" enctype="multipart/form-data">
+            <input type="hidden" value="<?=$editando['id'] ?? "" ?>" name="id"/>
 
                 <!-- Campo Nome -->
                 <div class="mb-4">
@@ -118,6 +170,7 @@ $produto = mysqli_query($conexao, $sql);
                         Nome
                     </label>
                     <input
+                        value="<?= $editando['nome'] ?? "" ?>"
                         type="text"
                         id="nome"
                         name="nome"
@@ -133,6 +186,7 @@ $produto = mysqli_query($conexao, $sql);
                         Descricao
                     </label>
                     <input
+                        value="<?= $editando['descricao'] ?? "" ?>"
                         type="text"
                         id="descricao"
                         name="descricao"
@@ -148,6 +202,7 @@ $produto = mysqli_query($conexao, $sql);
                         Preço
                     </label>
                     <input
+                        value="<?= $editando['preco'] ?? "" ?>"
                         type="number"
                         id="preco"
                         name="preco"
@@ -162,6 +217,7 @@ $produto = mysqli_query($conexao, $sql);
                         Estoque
                     </label>
                     <input
+                        value="<?= $editando['estoque'] ?? "" ?>"
                         type="number"
                         id="estoque"
                         name="estoque"
@@ -177,6 +233,7 @@ $produto = mysqli_query($conexao, $sql);
                         Categoria
                     </label>
                     <input
+                        value="<?= $editando['categoria'] ?? "" ?>"
                         type="text"
                         id="categoria"
                         name="categoria"
@@ -195,7 +252,6 @@ $produto = mysqli_query($conexao, $sql);
                         accept=".jpg,.png,.webp"
                         id="imagem"
                         name="imagem"
-                        required
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                 </div>
@@ -217,28 +273,41 @@ $produto = mysqli_query($conexao, $sql);
             <table class="w-full text-sm">
                 <thead>
                     <tr class="bg-gray-800 text-white">
-                        <th class="px-4 py-3 text-left rounded-tl-lg">ID</th>
+                        <th class="px-4 py-3 text-left rounded-tl-lg">Imagem</th>
                         <th class="px-4 py-3 text-left">Nome</th>
-                        <th class="px-4 py-3 text-left">Imagem</th>
-                        <th class="px-4 py-3 text-left rounded-tr-lg">Criado em</th>
+                        <th class="px-4 py-3 text-left">Categoria</th>
+                        <th class="px-4 py-3 text-left">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php while ($u = mysqli_fetch_assoc($produto)): ?>
-                        <tr class="border-b border-gray-200 hover:bg-gray-50">
-                            <td class="px-4 py-3"><?php echo $u["id"]; ?></td>
-                            <td class="px-4 py-3"><?php echo $u["nome"]; ?></td>
-                            <td>
+                <?php 
+                        // echo '<pre>';
+                        // print_r($produto);
+                        // die;
+
+                        // Buscar todos os produtos para listar
+                        $sql = "SELECT id, nome, imagem, categoria FROM produto ORDER BY id DESC";
+                        $produto = mysqli_query($conexao, $sql);  
+
+
+                        while ($u = mysqli_fetch_assoc($produto)): ?>
+                            <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                <td class="px-4 py-3">
                                 <?php if (!empty($u["imagem"])): ?>
                                     <img src="uploads/<?= $u["imagem"] ?>"
                                         width="60">
-                                <?php else: ?>
-                                    Sem imagem
-                                <?php endif; ?>
+                            <?php else: ?>
+                                Sem imagem
+                            <?php endif; ?>
                             </td>
-                            <td class="px-4 py-3 text-gray-500"><?php echo $u["criado_em"]; ?></td>
-                        </tr>
-                    <?php endwhile; ?>
+                                <td class="px-4 py-3"><?php echo $u["nome"]; ?></td>
+                                <td class="px-4 py-3"><?php echo $u["categoria"]; ?></td>
+                                <td class="px-4 py-3">
+                                <a class="editar" href="?editar=<?=$u["id"]; ?>">Editar</a><br>
+                                <a onclick="return confirm('Tem certeza disso?')" class="excluir" href="?excluir=<?=$u["id"]; ?>">Excluir</a>
+                            </td>
+                            </tr>
+                        <?php endwhile; ?>                                                       
                 </tbody>
             </table>
         </div>

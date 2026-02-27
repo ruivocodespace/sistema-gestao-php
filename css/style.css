@@ -10,6 +10,7 @@ body {
 }
 
 .excluir{
+    display: block;
     background: red;
     color: white;
     padding: 5px 10px;
@@ -20,6 +21,7 @@ body {
 }
 
 .editar{
+    display: block;
     background: blue;
     color: white;
     padding: 5px 10px;
