@@ -27,6 +27,11 @@ if(isset($_GET["editar"])){
     $res = mysqli_query($conexao, $sql);
     $editando = mysqli_fetch_assoc($res);
 }
+if (isset($_GET["excluir"])) {
+    $id = $_GET["excluir"];
+    $sql = "DELETE FROM cliente WHERE id = '$id'";
+    $res = mysqli_query($conexao, $sql);
+}
 
 // Verificar se o formulário de cadastro foi enviado
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -300,7 +305,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 <td class="px-4 py-3"><?php echo $u["email"]; ?></td>
                                 <td class="px-4 py-3">
                                 <a class="editar" href="?editar=<?=$u["id"]; ?>">Editar</a><br>
-                                <a onclick="return confirm('Tem certeza disso?')" class="exluir" href="?excluir=<?=$u["id"]; ?>">Excluir</a>
+                                <a onclick="return confirm('Tem certeza disso?')" class="excluir" href="?excluir=<?=$u["id"]; ?>">Excluir</a>
                             </td>
                             </tr>
                         <?php endwhile; ?>
