@@ -67,7 +67,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $sql = "SELECT * FROM cliente WHERE email = '$email'";
         $resultado = mysqli_query($conexao, $sql);
 
-        if (mysqli_num_rows($resultado) > 0 && $editando !== NULL) {
+        if (mysqli_num_rows($resultado) > 0 && !$editando) {
             $erro = "Este email já está cadastrado.";
         } else {
             if($id){

@@ -71,7 +71,7 @@ $imagem = $_FILES["imagem"];
         $sql = "SELECT * FROM produto WHERE nome = '$nome'";
         $resultado = mysqli_query($conexao, $sql);
 
-        if (mysqli_num_rows($resultado) > 0 && $editando !== NULL) {
+        if (mysqli_num_rows($resultado) > 0 && !$editando) {
             $erro = "Este produto já está cadastrado.";
         } else {
             if($id){

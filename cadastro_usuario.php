@@ -36,15 +36,16 @@ if (isset($_GET["excluir"])) {
 // Verificar se o formulário de cadastro foi enviado
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
+    $id = $_POST["id"];
     $nome  = $_POST["nome"];
     $email = $_POST["email"];
-    $senha = $_POST["senha"];
+    $senha = !$id ? $_POST["senha"] : '';
 
     // Verificar se o email já existe
     $sql = "SELECT * FROM usuario WHERE email = '$email'";
     $resultado = mysqli_query($conexao, $sql);
 
-    if (mysqli_num_rows($resultado) > 0) {
+    if (mysqli_num_rows($resultado) > 0 && !$editando) {
         $erro = "Este email já está cadastrado.";
     } else {
         // Criptografar a senha
@@ -56,7 +57,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }else{
             $sql = "INSERT INTO usuario (nome, email, senha) VALUES ('$nome', '$email', '$senhaHash')";
         }
-
 
         if (mysqli_query($conexao, $sql)) {
             $sucesso = "Usuário cadastrado com sucesso!";
